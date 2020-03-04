@@ -97,7 +97,7 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
   @override
   void initState() {
     super.initState();
-    futureplateNumber = fetchPlateDetails();
+    futureplateNumber = fetchPlateDetails(this.plateNumber);
   }
 
   @override
@@ -123,8 +123,8 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
   }
 }
 
-Future<String> fetchPlateDetails() async {
-  final response = await http.get('https://nickmurray.dev/api/plate/ABC123');
+Future<String> fetchPlateDetails(String plateNumber) async {
+  final response = await http.get('https://nickmurray.dev/api/plate/$plateNumber');
 
   if (response.statusCode == 200) {
     return response.body;
