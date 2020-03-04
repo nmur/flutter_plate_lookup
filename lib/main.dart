@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -89,16 +90,45 @@ class PlateDetailsPage extends StatefulWidget {
 }
 
 class _PlateDetailsPageState extends State<PlateDetailsPage> {
+  Future<String> futureplateNumber;
   final String plateNumber;
   _PlateDetailsPageState(this.plateNumber);
+
+  @override
+  void initState() {
+    super.initState();
+    futureplateNumber = fetchPlateDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
-        child: Text(plateNumber),
+        child: FutureBuilder<String>(
+            future: futureplateNumber,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Text(snapshot.data);
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+
+              // By default, show a loading spinner.
+              return CircularProgressIndicator();
+            },
+          )
       ),
     );
+  }
+}
+
+Future<String> fetchPlateDetails() async {
+  final response = await http.get('https://nickmurray.dev/api/plate/ABC123');
+
+  if (response.statusCode == 200) {
+    return response.body;
+  } else {
+    throw Exception('Failed to get plate details');
   }
 }
