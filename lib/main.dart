@@ -24,14 +24,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,14 +65,39 @@ class PlateNumberFormState extends State<PlateNumberForm> {
             child: RaisedButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text(_plateNumberFormController.text)));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PlateDetailsPage(_plateNumberFormController.value.text)),
+                  );
                 }
               },
               child: Text('Submit'),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PlateDetailsPage extends StatefulWidget {
+  final String plateNumber;
+  PlateDetailsPage(this.plateNumber);
+
+  @override
+  _PlateDetailsPageState createState() => _PlateDetailsPageState(this.plateNumber);
+}
+
+class _PlateDetailsPageState extends State<PlateDetailsPage> {
+  final String plateNumber;
+  _PlateDetailsPageState(this.plateNumber);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Text(plateNumber),
       ),
     );
   }
