@@ -114,7 +114,8 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
         future: futureplateNumber,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Map<String, dynamic> vehicleData = jsonDecode(snapshot.data);
+            Map<String, dynamic> vehicleData =
+                jsonDecode(snapshot.data)['vehicle'];
             return VehicleDataTable(vehicleData: vehicleData);
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
@@ -138,7 +139,34 @@ class VehicleDataTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(this.vehicleData['vehicle']['model']);
+    return DataTable(
+      columns: <DataColumn>[
+        DataColumn(label: Text('Property')),
+        DataColumn(label: Text('Value'))
+      ],
+      rows: <DataRow>[
+        DataRow(cells: [
+          DataCell(Text('Model')),
+          DataCell(Text(this.vehicleData['model']))
+        ]),
+        DataRow(cells: [
+          DataCell(Text('Manufacturer')),
+          DataCell(Text(this.vehicleData['manufacturer']))
+        ]),
+        DataRow(cells: [
+          DataCell(Text('Year')),
+          DataCell(Text(this.vehicleData['manufactureYear'].toString()))
+        ]),
+        DataRow(cells: [
+          DataCell(Text('Variant')),
+          DataCell(Text(this.vehicleData['variant']))
+        ]),
+        DataRow(cells: [
+          DataCell(Text('Colour')),
+          DataCell(Text(this.vehicleData['vehicleColour']))
+        ]),
+      ],
+    );
   }
 }
 
