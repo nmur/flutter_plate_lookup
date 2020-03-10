@@ -11,8 +11,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          primarySwatch: Colors.blue,
+          textTheme: TextTheme(bodyText1: TextStyle(fontSize: 22.0))),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -110,21 +110,22 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
-          child: FutureBuilder<String>(
-        future: futureplateNumber,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            Map<String, dynamic> vehicleData =
-                jsonDecode(snapshot.data)['vehicle'];
-            return VehicleDataTable(vehicleData: vehicleData);
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
+        child: FutureBuilder<String>(
+          future: futureplateNumber,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Map<String, dynamic> vehicleData =
+                  jsonDecode(snapshot.data)['vehicle'];
+              return VehicleDataTable(vehicleData: vehicleData);
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}");
+            }
 
-          // By default, show a loading spinner.
-          return CircularProgressIndicator();
-        },
-      )),
+            // By default, show a loading spinner.
+            return CircularProgressIndicator();
+          },
+        )
+      ),
     );
   }
 }
@@ -141,29 +142,34 @@ class VehicleDataTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return DataTable(
       columns: <DataColumn>[
-        DataColumn(label: Text('Property')),
-        DataColumn(label: Text('Value'))
+        DataColumn(label: Text('')),
+        DataColumn(label: Text(''))
       ],
       rows: <DataRow>[
         DataRow(cells: [
-          DataCell(Text('Model')),
-          DataCell(Text(this.vehicleData['model']))
+          DataCell(Text('Model', style: TextStyle(fontSize: 22))),
+          DataCell(
+              Text(this.vehicleData['model'], style: TextStyle(fontSize: 22)))
         ]),
         DataRow(cells: [
-          DataCell(Text('Manufacturer')),
-          DataCell(Text(this.vehicleData['manufacturer']))
+          DataCell(Text('Manufacturer', style: TextStyle(fontSize: 22))),
+          DataCell(Text(this.vehicleData['manufacturer'],
+              style: TextStyle(fontSize: 22)))
         ]),
         DataRow(cells: [
-          DataCell(Text('Year')),
-          DataCell(Text(this.vehicleData['manufactureYear'].toString()))
+          DataCell(Text('Year', style: TextStyle(fontSize: 22))),
+          DataCell(Text(this.vehicleData['manufactureYear'].toString(),
+              style: TextStyle(fontSize: 22)))
         ]),
         DataRow(cells: [
-          DataCell(Text('Variant')),
-          DataCell(Text(this.vehicleData['variant']))
+          DataCell(Text('Variant', style: TextStyle(fontSize: 22))),
+          DataCell(
+              Text(this.vehicleData['variant'], style: TextStyle(fontSize: 22)))
         ]),
         DataRow(cells: [
-          DataCell(Text('Colour')),
-          DataCell(Text(this.vehicleData['vehicleColour']))
+          DataCell(Text('Colour', style: TextStyle(fontSize: 22))),
+          DataCell(Text(this.vehicleData['vehicleColour'],
+              style: TextStyle(fontSize: 22)))
         ]),
       ],
     );
