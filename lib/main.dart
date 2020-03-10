@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -62,6 +63,11 @@ class PlateNumberFormState extends State<PlateNumberForm> {
               }
               return null;
             },
+            style: TextStyle(fontSize: 50),
+            textAlign: TextAlign.center,
+            inputFormatters: <TextInputFormatter> [
+              UpperCaseTextFormatter()
+            ]
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -76,11 +82,21 @@ class PlateNumberFormState extends State<PlateNumberForm> {
                   );
                 }
               },
-              child: Text('Submit'),
+              child: Text('Submit', style: TextStyle(fontSize: 28)),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text?.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }
