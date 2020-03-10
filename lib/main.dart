@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -68,7 +70,9 @@ class PlateNumberFormState extends State<PlateNumberForm> {
                 if (_formKey.currentState.validate()) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => PlateDetailsPage(_plateNumberFormController.value.text)),
+                    MaterialPageRoute(
+                        builder: (context) => PlateDetailsPage(
+                            _plateNumberFormController.value.text)),
                   );
                 }
               },
@@ -86,7 +90,8 @@ class PlateDetailsPage extends StatefulWidget {
   PlateDetailsPage(this.plateNumber);
 
   @override
-  _PlateDetailsPageState createState() => _PlateDetailsPageState(this.plateNumber);
+  _PlateDetailsPageState createState() =>
+      _PlateDetailsPageState(this.plateNumber);
 }
 
 class _PlateDetailsPageState extends State<PlateDetailsPage> {
@@ -105,26 +110,41 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
-        child: FutureBuilder<String>(
-            future: futureplateNumber,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data);
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
+          child: FutureBuilder<String>(
+        future: futureplateNumber,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            Map<String, dynamic> vehicleData = jsonDecode(snapshot.data);
+            return VehicleDataTable(vehicleData: vehicleData);
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
 
-              // By default, show a loading spinner.
-              return CircularProgressIndicator();
-            },
-          )
-      ),
+          // By default, show a loading spinner.
+          return CircularProgressIndicator();
+        },
+      )),
     );
   }
 }
 
+class VehicleDataTable extends StatelessWidget {
+  final Map<String, dynamic> vehicleData;
+
+  const VehicleDataTable({
+    Key key,
+    this.vehicleData,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(this.vehicleData['vehicle']['model']);
+  }
+}
+
 Future<String> fetchPlateDetails(String plateNumber) async {
-  final response = await http.get('https://nickmurray.dev/api/plate/$plateNumber');
+  final response =
+      await http.get('https://nickmurray.dev/api/plate/$plateNumber');
 
   if (response.statusCode == 200) {
     return response.body;
