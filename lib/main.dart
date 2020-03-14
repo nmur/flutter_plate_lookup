@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -136,7 +137,12 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
               Map<String, dynamic> vehicleData = jsonDecode(snapshot.data)['vehicle'];
               if (vehicleData == null)
                 return VehicleNotFoundWidget();
-              return VehicleDataTable(vehicleData: vehicleData);
+              return Column(
+                children: <Widget>[
+                  VehicleImage(vehicleData: vehicleData),
+                  VehicleDataTable(vehicleData: vehicleData),
+                ],
+              );
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
             }
@@ -147,6 +153,29 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
         )
       ),
     );
+  }
+}
+
+class VehicleImage extends StatelessWidget {
+  final Map<String, dynamic> vehicleData;
+
+  const VehicleImage({
+    Key key,
+    this.vehicleData,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: fetchVehicleImage('bmw+x5+2016'),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Image.network('https://www.autocar.co.uk/sites/autocar.co.uk/files/styles/body-image/public/1-bmw-x7-2019-uk-fd-hero-front_0.jpg?itok=fLGt4zem');
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        return CircularProgressIndicator();
+      },);
   }
 }
 
@@ -228,5 +257,20 @@ Future<String> fetchPlateDetails(String plateNumber) async {
     return response.body;
   } else {
     throw Exception('Failed to get plate details');
+  }
+}
+
+Future<String> fetchVehicleImage(String vehicleDetailString) async {
+  var key = '';
+  final response =
+      await http.get(
+        'https://api.cognitive.microsoft.com/bing/v7.0/images/search?count=1&mkt=en-us&q=$vehicleDetailString',
+        headers: {'Ocp-Apim-Subscription-Key': key}
+    );
+
+  if (response.statusCode == 200) {
+    return response.body;
+  } else {
+    throw Exception('Failed to get vehicle images');
   }
 }
