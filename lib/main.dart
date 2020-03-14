@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,11 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Plate Lookup',
       theme: ThemeData(
-          primarySwatch: Colors.blue,
-          textTheme: TextTheme(bodyText1: TextStyle(fontSize: 22.0))),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+        textTheme: TextTheme(bodyText1: TextStyle(fontSize: 22.0))),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+      ),
+      home: MyHomePage(title: 'Flutter Plate Lookup Home Page'),
     );
   }
 }
@@ -82,7 +85,8 @@ class PlateNumberFormState extends State<PlateNumberForm> {
                   );
                 }
               },
-              child: Text('Submit', style: TextStyle(fontSize: 28)),
+              color: Colors.blueGrey,
+              child: Text('Lookup'.toUpperCase(), style: TextStyle(fontSize: 28)),
             ),
           ),
         ],
@@ -130,9 +134,15 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
           future: futureplateNumber,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              Map<String, dynamic> vehicleData =
-                  jsonDecode(snapshot.data)['vehicle'];
-              return VehicleDataTable(vehicleData: vehicleData);
+              Map<String, dynamic> vehicleData = jsonDecode(snapshot.data)['vehicle'];
+              if (vehicleData == null)
+                return VehicleNotFoundWidget();
+              return Column(
+                children: <Widget>[
+                  VehicleImage(vehicleData: vehicleData),
+                  VehicleDataTable(vehicleData: vehicleData),
+                ],
+              );
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
             }
@@ -142,6 +152,53 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
           },
         )
       ),
+    );
+  }
+}
+
+class VehicleImage extends StatelessWidget {
+  final Map<String, dynamic> vehicleData;
+
+  const VehicleImage({
+    Key key,
+    this.vehicleData,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: fetchVehicleImageUrl(this.vehicleData['manufacturer'] + '+' + this.vehicleData['model'] + '+' + this.vehicleData['manufactureYear'].toString() + '+' + this.vehicleData['vehicleColour']),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Image.network(snapshot.data);
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        return CircularProgressIndicator();
+      },);
+  }
+}
+
+class VehicleNotFoundWidget extends StatelessWidget {
+  const VehicleNotFoundWidget({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Icon(
+            Icons.warning,
+            color: Colors.yellow,
+            size: 100.0,
+          ),
+        ),
+        Text("Vehicle not found.", style: TextStyle(fontSize: 30),),
+      ],
     );
   }
 }
@@ -200,5 +257,20 @@ Future<String> fetchPlateDetails(String plateNumber) async {
     return response.body;
   } else {
     throw Exception('Failed to get plate details');
+  }
+}
+
+Future<String> fetchVehicleImageUrl(String vehicleDetailString) async {
+  var key = '';
+  final response =
+      await http.get(
+        'https://api.cognitive.microsoft.com/bing/v7.0/images/search?count=1&mkt=en-us&q=$vehicleDetailString',
+        headers: {'Ocp-Apim-Subscription-Key': key}
+    );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body)['value'][0]['contentUrl'];
+  } else {
+    throw Exception('Failed to get vehicle images');
   }
 }
