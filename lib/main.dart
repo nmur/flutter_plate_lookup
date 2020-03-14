@@ -167,10 +167,10 @@ class VehicleImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: fetchVehicleImage('bmw+x5+2016'),
+      future: fetchVehicleImageUrl('bmw+x5+2016'),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return Image.network('https://www.autocar.co.uk/sites/autocar.co.uk/files/styles/body-image/public/1-bmw-x7-2019-uk-fd-hero-front_0.jpg?itok=fLGt4zem');
+          return Image.network(snapshot.data);
         } else if (snapshot.hasError) {
           return Text("${snapshot.error}");
         }
@@ -260,7 +260,7 @@ Future<String> fetchPlateDetails(String plateNumber) async {
   }
 }
 
-Future<String> fetchVehicleImage(String vehicleDetailString) async {
+Future<String> fetchVehicleImageUrl(String vehicleDetailString) async {
   var key = '';
   final response =
       await http.get(
@@ -269,7 +269,7 @@ Future<String> fetchVehicleImage(String vehicleDetailString) async {
     );
 
   if (response.statusCode == 200) {
-    return response.body;
+    return jsonDecode(response.body)['value'][0]['contentUrl'];
   } else {
     throw Exception('Failed to get vehicle images');
   }
