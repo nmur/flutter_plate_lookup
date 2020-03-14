@@ -10,11 +10,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Plate Lookup',
       theme: ThemeData(
-          primarySwatch: Colors.blue,
-          textTheme: TextTheme(bodyText1: TextStyle(fontSize: 22.0))),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+        textTheme: TextTheme(bodyText1: TextStyle(fontSize: 22.0))),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+      ),
+      home: MyHomePage(title: 'Flutter Plate Lookup Home Page'),
     );
   }
 }
@@ -82,7 +84,8 @@ class PlateNumberFormState extends State<PlateNumberForm> {
                   );
                 }
               },
-              child: Text('Submit', style: TextStyle(fontSize: 28)),
+              color: Colors.blueGrey,
+              child: Text('Lookup'.toUpperCase(), style: TextStyle(fontSize: 28)),
             ),
           ),
         ],
@@ -130,8 +133,9 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
           future: futureplateNumber,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              Map<String, dynamic> vehicleData =
-                  jsonDecode(snapshot.data)['vehicle'];
+              Map<String, dynamic> vehicleData = jsonDecode(snapshot.data)['vehicle'];
+              if (vehicleData == null)
+                return VehicleNotFoundWidget();
               return VehicleDataTable(vehicleData: vehicleData);
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
@@ -142,6 +146,30 @@ class _PlateDetailsPageState extends State<PlateDetailsPage> {
           },
         )
       ),
+    );
+  }
+}
+
+class VehicleNotFoundWidget extends StatelessWidget {
+  const VehicleNotFoundWidget({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Icon(
+            Icons.warning,
+            color: Colors.yellow,
+            size: 100.0,
+          ),
+        ),
+        Text("Vehicle not found.", style: TextStyle(fontSize: 30),),
+      ],
     );
   }
 }
