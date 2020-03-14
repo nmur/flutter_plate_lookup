@@ -167,7 +167,7 @@ class VehicleImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: fetchVehicleImageUrl('bmw+x5+2016'),
+      future: fetchVehicleImageUrl(this.vehicleData['manufacturer'] + '+' + this.vehicleData['model'] + '+' + this.vehicleData['manufactureYear'].toString() + '+' + this.vehicleData['vehicleColour']),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Image.network(snapshot.data);
